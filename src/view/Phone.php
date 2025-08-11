@@ -4,15 +4,14 @@ namespace gorriecoe\Link\View;
 
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
-use \libphonenumber\PhoneNumber;
-use SilverStripe\View\ViewableData;
+use SilverStripe\Model\ModelData;
 
 /**
  * Phone
  *
  * @package silverstripe-link
  */
-class Phone extends ViewableData
+class Phone extends ModelData
 {
     /**
      * @var \libphonenumber\PhoneNumberUtil
@@ -40,16 +39,16 @@ class Phone extends ViewableData
 
     public function __construct($phone)
     {
+        parent::__construct();
         $this->library = PhoneNumberUtil::getInstance();
         $country = $this->config()->get('default_country');
         $this->instance = $this->library->parse($phone, $country);
-        parent::__construct($phone);
     }
 
     /**
      * Format the phone number in international format.
      *
-     * @return gorriecoe\Link\View\Phone
+     * @return self
      */
     public function International()
     {
@@ -60,7 +59,7 @@ class Phone extends ViewableData
     /**
      * Format the phone number in national format.
      *
-     * @return gorriecoe\Link\View\Phone
+     * @return self
      */
     public function National()
     {
@@ -71,7 +70,7 @@ class Phone extends ViewableData
     /**
      * Format the phone number in E164 format
      *
-     * @return gorriecoe\Link\View\Phone.
+     * @return self
      */
     public function E164()
     {
@@ -82,7 +81,7 @@ class Phone extends ViewableData
     /**
      * Format the phone number in RFC3966 format.
      *
-     * @return gorriecoe\Link\View\Phone
+     * @return self
      */
     public function RFC3966()
     {
@@ -94,7 +93,7 @@ class Phone extends ViewableData
      * Set the country to which the phone number belongs to.
      *
      * @param string $country
-     * @return gorriecoe\Link\View\Phone
+     * @return self
      */
     public function To($country)
     {
@@ -107,7 +106,7 @@ class Phone extends ViewableData
      * Set the country the user is dialing from.
      *
      * @param string $country
-     * @return gorriecoe\Link\View\Phone
+     * @return self
      */
     public function From($country)
     {
@@ -119,7 +118,7 @@ class Phone extends ViewableData
      * Sets whether this phone number uses a leading zero.
      *
      * @param bool $value True to use italian leading zero, false otherwise.
-     * @return gorriecoe\Link\View\Phone
+     * @return self
      */
     public function LeadingZero($value = true)
     {
@@ -128,7 +127,7 @@ class Phone extends ViewableData
     }
 
     /**
-     * @return HTML
+     * @return string
      */
     public function Render()
     {
@@ -138,6 +137,7 @@ class Phone extends ViewableData
                 $this->fromCountry
             );
         } else {
+            /** @phpstan-ignore-next-line argument.type */
             return $this->library->format(
                 $this->instance,
                 $this->phoneNumberFormat
@@ -146,9 +146,9 @@ class Phone extends ViewableData
     }
 
     /**
-     * @return HTML
+     * @return string
      */
-    public function forTemplate()
+    public function forTemplate(): string
     {
         return $this->Render();
     }
