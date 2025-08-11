@@ -4,16 +4,16 @@ title: Extending
 
 ## Adding custom link types
 
-Sometimes you might have custom DataObject types that you would like CMS users to be able to create Links to. This can be achieved by adding a DataExtension to the Link DataObject, see the below example for making Product objects Linkable.
+Sometimes you might have custom DataObject types that you would like CMS users to be able to create Links to. This can be achieved by adding an Extension to the Link DataObject, see the below example for making Product objects Linkable.
 
 ```php
 
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\DropdownField;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
 
-class CustomLinkExtension extends DataExtension
+class CustomLinkExtension extends Extension
 {
     private static $has_one = [
         'Product' => 'Product',
