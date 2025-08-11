@@ -3,9 +3,9 @@
 namespace gorriecoe\Link\Models;
 
 use gorriecoe\Link\Extensions\LinkSiteTree;
-use gorriecoe\Link\Extensions\SiteTreeLink;
 use InvalidArgumentException;
 use SilverStripe\Assets\File;
+use SilverStripe\Control\Controller;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\DropdownField;
@@ -15,11 +15,10 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Control\Director;
-use SilverStripe\CMS\Controllers\ContentController;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
 use SilverStripe\Assets\Folder;
+use SilverStripe\Core\Validation\ValidationResult;
 
 /**
  * Link
@@ -67,9 +66,9 @@ class Link extends DataObject
     private static $has_one = [
         'File' => File::class
     ];
-    
+
     private static $owns = [
-       'File',   
+       'File',
     ];
 
     /**
@@ -158,17 +157,7 @@ class Link extends DataObject
      */
     private static $link_to_folders = false;
 
-    /**
-     * Provides a quick way to define additional methods for provideGraphQLScaffolding as Fields
-     * @return Array
-     */
-    private static $gql_fields = [];
 
-    /**
-     * Provides a quick way to define additional methods for provideGraphQLScaffolding as Nested Queries
-     * @var Array
-     */
-    private static $gql_nested_queries = [];
 
     /**
      * @var string custom CSS classes for template
@@ -227,7 +216,7 @@ class Link extends DataObject
      * CMS Main fields
      * This is so other modules can access these fields without other tabs etc.
      *
-     * @return Array
+     * @return array
      */
     public function getCMSMainFields()
     {
@@ -295,11 +284,7 @@ class Link extends DataObject
         return $fields;
     }
 
-    /**
-     * Validate
-     * @return ValidationResult
-     */
-    public function validate()
+    public function validate(): ValidationResult
     {
         $valid = true;
         $message = null;
@@ -408,28 +393,7 @@ class Link extends DataObject
         }
     }
 
-    /**
-     * Provides a quick way to define additional methods to provideGraphQLScaffolding as Fields
-     * @return Array
-     */
-    public function gqlFields()
-    {
-        $fields = $this->config()->get('gql_fields');
-        $this->extend('updateGqlFields', $fields);
-        $fields = array_merge(['LinkURL'], $fields);
-        return $fields;
-    }
 
-    /**
-     * Provides a quick way to define additional methods to provideGraphQLScaffolding as Nested Queries
-     * @return Array
-     */
-    public function gqlNestedQueries()
-    {
-        $nested = $this->config()->get('gql_nested_queries');
-        $this->extend('updateGqlNestedQueries', $nested);
-        return $nested;
-    }
 
     /**
      * Set CSS classes for templates
@@ -558,12 +522,12 @@ class Link extends DataObject
 
     /**
      * Works out what the URL for this link should be based on it's Type
-     * @return string
+     * @return string|null
      */
     public function getLinkURL()
     {
         if (!$this->ID) {
-            return;
+            return null;
         }
         $type = $this->Type;
         switch ($type) {
@@ -618,7 +582,7 @@ class Link extends DataObject
 
         $classes = $this->classes;
         $this->extend('updateClasses', $classes);
-        if (count($classes)) {
+        if (!empty($classes) && is_array($classes)) {
             return implode(' ', $classes);
         }
         return '';
@@ -626,7 +590,7 @@ class Link extends DataObject
 
     /**
      * Returns the html class attribute
-     * @return HTMLFragment
+     * @return string|null
      */
     public function getClassAttr()
     {
@@ -644,7 +608,7 @@ class Link extends DataObject
 
     /**
      * Returns the html target attribute
-     * @return HTMLFragment
+     * @return string|null
      */
     public function getTargetAttr()
     {
@@ -664,7 +628,7 @@ class Link extends DataObject
 
     /**
      * Renders an HTML ID attribute
-     * @return HTMLFragment
+     * @return string|null
      */
     public function getIDAttr()
     {
@@ -678,7 +642,7 @@ class Link extends DataObject
     public function getCurrentPage()
     {
         $currentPage = Director::get_current_page();
-        if ($currentPage instanceof ContentController) {
+        if ($currentPage instanceof Controller) {
             $currentPage = $currentPage->data();
         }
         return $currentPage;
@@ -795,9 +759,8 @@ class Link extends DataObject
 
     /**
      * Renders an HTML anchor attribute for this link
-     * @return \SilverStripe\ORM\FieldType\DBHTMLText
      */
-    public function forTemplate()
+    public function forTemplate(): string
     {
         $link = '';
         if ($this->LinkURL) {
